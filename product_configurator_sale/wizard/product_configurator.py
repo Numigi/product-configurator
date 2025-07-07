@@ -44,6 +44,8 @@ class ProductConfiguratorSale(models.TransientModel):
         values = cfg_session.get_vals_to_write(values=values, model=model_name)
         values.update(line_vals)
 
+        if values.get("tax_id"):
+            values.pop("tax_id", None)
         if self.order_line_id:
             self.order_line_id.write(values)
         else:
