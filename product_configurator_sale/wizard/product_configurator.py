@@ -39,13 +39,15 @@ class ProductConfiguratorSale(models.TransientModel):
         order_line_obj = self.env[model_name]
         cfg_session = self.config_session_id
         specs = cfg_session.get_onchange_specifications(model=model_name)
+        # Filter the fields_spec dictionary to keep only the keys present in line_vals.
+        specs = {
+            key: val for key, val in specs.items() if key in list(line_vals.keys())
+        }
         updates = order_line_obj.onchange(line_vals, ["product_id"], specs)
         values = updates.get("value", {})
         values = cfg_session.get_vals_to_write(values=values, model=model_name)
         values.update(line_vals)
 
-        if values.get("tax_id"):
-            values.pop("tax_id", None)
         if self.order_line_id:
             self.order_line_id.write(values)
         else:
